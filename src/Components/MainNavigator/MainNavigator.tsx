@@ -59,7 +59,11 @@ const MainNavigator = () => {
         {session ? (
           <>
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
+            <Stack.Screen 
+              name="VerificationScreen" 
+              component={VerificationScreen} 
+              options={{ gestureEnabled: false }}
+            />
             <Stack.Screen name="ButtonExamples" component={ButtonExamples} />
             <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
           </>
@@ -68,7 +72,11 @@ const MainNavigator = () => {
             <Stack.Screen name="SplashScreen" component={SplashScreen} />
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-            <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
+            <Stack.Screen 
+              name="VerificationScreen" 
+              component={VerificationScreen} 
+              options={{ gestureEnabled: false }}
+            />
           </>
         )}
       </Stack.Navigator>

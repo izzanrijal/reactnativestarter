@@ -42,7 +42,7 @@ const SignUpScreen = ({ navigation }) => {
       });
       if (error) throw error;
       await callEmailVerifyFunction(data.email, (verificationCode) => {
-        navigation.navigate('VerificationScreen', {
+        navigation.replace('VerificationScreen', {
           email: data.email,
           password: data.password,
           verificationCode: verificationCode
