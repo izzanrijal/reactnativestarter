@@ -21,7 +21,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
           }
         } catch (error) {
           console.error('Error checking user session:', error);
-          navigation.replace('signUpScreen');
+          navigation.replace('SignUpScreen');
         }
       };
       
