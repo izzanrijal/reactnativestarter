@@ -1,12 +1,36 @@
 import Button from '@components/Buttons/Button';
 import supabase from '@config/supabase';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, SafeAreaView, Text, StyleSheet, TextInput, View } from 'react-native';
 
 const VerificationScreen = ({ route, navigation }) => {
-  const { email, password, verificationCode } = route.params;
   const [enteredCode, setEnteredCode] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Check if route params exist
+  useEffect(() => {
+    if (!route.params) {
+      Alert.alert(
+        'Error',
+        'Verification information is missing.',
+        [{ text: 'OK', onPress: () => navigation.replace('SignInScreen') }]
+      );
+      return;
+    }
+  }, [route, navigation]);
+  
+  // Only proceed if route.params exists
+  if (!route.params) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+  
+  const { email, password, verificationCode } = route.params;
 
   const handleVerification = async () => {
     if (!enteredCode) {
@@ -38,7 +62,7 @@ const VerificationScreen = ({ route, navigation }) => {
       if (profileError) {
         throw profileError;
       }
-      navigation.navigate('HomeScreen');
+      navigation.replace('HomeScreen');
     } catch (error) {
       console.error('Verification error:', error);
       Alert.alert(

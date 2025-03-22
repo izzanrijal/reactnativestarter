@@ -33,6 +33,18 @@ const MainNavigator = () => {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator
+          id={undefined}
+          screenOptions={{ headerShown: false, gestureEnabled: false }}
+        >
+          <Stack.Screen name="SplashScreen" component={SplashScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -42,7 +54,7 @@ const MainNavigator = () => {
           headerShown: false,
           gestureEnabled: false,
         }}
-        initialRouteName="SplashScreen"
+        initialRouteName={session ? "HomeScreen" : "SplashScreen"}
       >
         {session ? (
           <>
@@ -56,6 +68,7 @@ const MainNavigator = () => {
             <Stack.Screen name="SplashScreen" component={SplashScreen} />
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+            <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
           </>
         )}
       </Stack.Navigator>
