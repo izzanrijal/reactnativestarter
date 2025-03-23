@@ -1,6 +1,24 @@
 import { Alert } from "react-native";
 
+// Track the last sent verification code to prevent duplicates
+let lastRequestId = '';
+let lastRequestTime = 0;
+
 export const callEmailVerifyFunction = async (email: string, handleSubmit: ((arg0: number) => void) | undefined) => {
+    // Generate a unique request ID based on email and timestamp
+    const now = Date.now();
+    const requestId = `${email}-${now}`;
+    
+    // Prevent duplicate requests within a short time frame (1000ms)
+    if (lastRequestId && lastRequestTime && now - lastRequestTime < 1000 && lastRequestId.startsWith(email)) {
+      console.log('Ignoring duplicate email verification request');
+      return;
+    }
+
+    // Update tracking variables
+    lastRequestId = requestId;
+    lastRequestTime = now;
+    
     const randomCode = Math.floor(1000 + Math.random() * 9000);
     try {
       const res = await fetch("https://api.resend.com/emails", {

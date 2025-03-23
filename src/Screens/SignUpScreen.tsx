@@ -18,6 +18,7 @@ const SignUpScreen = ({ navigation }) => {
   
   const [loading, setLoading] = useState(false);
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
+  const [verificationInProgress, setVerificationInProgress] = useState(false);
   
   const password = watch('password');
   const repeatPassword = watch('repeatPassword');
@@ -83,6 +84,13 @@ const SignUpScreen = ({ navigation }) => {
 
   // Function to send verification email and navigate to verification screen
   const sendVerificationEmail = async (email, password) => {
+    // Prevent multiple verification requests
+    if (verificationInProgress) {
+      console.log('Verification already in progress, ignoring duplicate request');
+      return;
+    }
+    
+    setVerificationInProgress(true);
     try {
       // Use callEmailVerifyFunction to send verification email
       callEmailVerifyFunction(email, (randomCode) => {
@@ -90,9 +98,15 @@ const SignUpScreen = ({ navigation }) => {
         
         // Safe navigation to verification with the generated code
         safeNavigateToVerification(email, password, randomCode.toString());
+        
+        // Reset verification flag after successful navigation
+        setVerificationInProgress(false);
       });
     } catch (error) {
       console.error('Error sending verification email:', error);
+      
+      // Reset verification flag on error
+      setVerificationInProgress(false);
       
       // Fallback to generating code locally if email sending fails
       const fallbackCode = Math.floor(1000 + Math.random() * 9000).toString();

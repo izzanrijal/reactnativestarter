@@ -176,6 +176,12 @@ const VerificationScreen = ({ route, navigation }) => {
       return;
     }
     
+    // Prevent duplicate resend requests
+    if (resendLoading) {
+      console.log('Resend already in progress, ignoring duplicate request');
+      return;
+    }
+    
     setResendLoading(true);
     try {
       // Track resend attempts

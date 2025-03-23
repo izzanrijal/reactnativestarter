@@ -24,9 +24,16 @@ const SignInScreen = ({ navigation }) => {
   const [showForgotPasswordForm, setShowForgotPasswordForm] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetEmailError, setResetEmailError] = useState('');
-  const [resetInProgress, setResetInProgress] = useState(false);
+  const [verificationInProgress, setVerificationInProgress] = useState(false);
 
   const sendVerificationEmail = async (email, password) => {
+    // Prevent multiple verification requests
+    if (verificationInProgress) {
+      console.log('Verification already in progress, ignoring duplicate request');
+      return;
+    }
+    
+    setVerificationInProgress(true);
     try {
       // Use callEmailVerifyFunction to send verification email
       callEmailVerifyFunction(email, (randomCode) => {
@@ -43,9 +50,15 @@ const SignInScreen = ({ navigation }) => {
           'Verification Required',
           `You need to verify your email before accessing the app. Please check your email for the code.`
         );
+        
+        // Reset the flag after successful navigation
+        setVerificationInProgress(false);
       });
     } catch (error) {
       console.error('Error sending verification email:', error);
+      
+      // Reset the verification flag on error
+      setVerificationInProgress(false);
       
       // Fallback to generating code locally if email sending fails
       const fallbackCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -204,7 +217,7 @@ const SignInScreen = ({ navigation }) => {
       return;
     }
 
-    setResetInProgress(true);
+    setVerificationInProgress(true);
     
     try {
       // Try a sign-in with a dummy password to check if the email exists
@@ -222,7 +235,7 @@ const SignInScreen = ({ navigation }) => {
       } else if (error && error.message.includes("user not found")) {
         // Email doesn't exist in the system
         setResetEmailError('No account found with this email address');
-        setResetInProgress(false);
+        setVerificationInProgress(false);
         return;
       }
       
@@ -234,7 +247,7 @@ const SignInScreen = ({ navigation }) => {
       if (userAttempts.count >= 3 && (now - userAttempts.lastAttempt) < 30 * 60 * 1000) {
         const minutesRemaining = Math.ceil((30 * 60 * 1000 - (now - userAttempts.lastAttempt)) / (60 * 1000));
         setResetEmailError(`Too many reset attempts. Please try again in ${minutesRemaining} minutes.`);
-        setResetInProgress(false);
+        setVerificationInProgress(false);
         return;
       }
       
@@ -270,7 +283,7 @@ const SignInScreen = ({ navigation }) => {
       console.error('Password reset error:', err);
       setResetEmailError('An unexpected error occurred. Please try again.');
     } finally {
-      setResetInProgress(false);
+      setVerificationInProgress(false);
     }
   };
 
@@ -338,18 +351,18 @@ const SignInScreen = ({ navigation }) => {
                 setResetEmail('');
                 setResetEmailError('');
               }}
-              disabled={resetInProgress}
+              disabled={verificationInProgress}
             >
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.button, styles.resetButton, resetInProgress && styles.disabledButton]} 
+              style={[styles.button, styles.resetButton, verificationInProgress && styles.disabledButton]} 
               onPress={forgotPassword}
-              disabled={resetInProgress}
+              disabled={verificationInProgress}
             >
               <Text style={styles.buttonText}>
-                {resetInProgress ? "Sending..." : "Reset Password"}
+                {verificationInProgress ? "Sending..." : "Reset Password"}
               </Text>
             </TouchableOpacity>
           </View>
