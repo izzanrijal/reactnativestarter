@@ -5,6 +5,7 @@ import CustomForm from '../Components/Forms/FormInput';
 import { FormData, FormField } from '../Types/types';
 import supabase from '@config/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { callEmailVerifyFunction } from '@hooks/callEmailVerifyFunction';
 
 const SignInScreen = ({ navigation }) => {
   const { control, handleSubmit, watch } = useForm<FormData>({
@@ -16,20 +17,174 @@ const SignInScreen = ({ navigation }) => {
   });
   
   const [loading, setLoading] = useState(false);
+
+  const sendVerificationEmail = async (email, password) => {
+    try {
+      // Use callEmailVerifyFunction to send verification email
+      callEmailVerifyFunction(email, (randomCode) => {
+        console.log('Verification code sent to email:', randomCode);
+        
+        // Navigate to verification screen with generated code
+        navigation.replace('VerificationScreen', {
+          email,
+          password,
+          verificationCode: randomCode.toString()
+        });
+        
+        Alert.alert(
+          'Verification Required',
+          `You need to verify your email before accessing the app. Please check your email for the code.`
+        );
+      });
+    } catch (error) {
+      console.error('Error sending verification email:', error);
+      
+      // Fallback to generating code locally if email sending fails
+      const fallbackCode = Math.floor(1000 + Math.random() * 9000).toString();
+      console.log('Email sending failed. Using fallback code:', fallbackCode);
+      
+      // Navigate to verification with fallback code
+      navigation.replace('VerificationScreen', {
+        email,
+        password,
+        verificationCode: fallbackCode
+      });
+      
+      Alert.alert(
+        'Verification Required',
+        `Your verification code is: ${fallbackCode}`
+      );
+    }
+  };
+
   const sendDataToSupabase = async (data: FormData) => {
     setLoading(true);
     const { email, password } = data;
-    const { error } = await supabase.auth.signInWithPassword({
+    try {
+      // Check if this email exists in user_profile and if it's verified
+      try {
+        const { data: userProfile, error: profileQueryError } = await supabase
+          .from('user_profile')
+          .select('is_verified, user_uuid, user_email')
+          .eq('user_email', email)
+          .single();
+        
+        // If table doesn't exist error
+        if (profileQueryError && profileQueryError.code === '42P01') {
+          console.log('user_profile table does not exist, skipping verification check');
+          // Proceed with normal sign in without verification
+        }
+        // If we found a profile for this email
+        else if (userProfile) {
+          // Check verification status first
+          if (userProfile.is_verified === false) {
+            // Profile exists but is NOT verified - send verification email
+            
+            // Try to sign in anyway to get authentication
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+            
+            if (signInError) {
+              Alert.alert('Sign-in Error', signInError.message);
+              setLoading(false);
+              return;
+            }
+            
+            // Send verification email and navigate to verification screen
+            sendVerificationEmail(email, password);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (profileCheckError) {
+        console.error('Error checking user profile:', profileCheckError);
+        // Continue with sign-in process even if profile check fails
+      }
+      
+      // Attempt to sign in 
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-    });
-    if (error) {
-      Alert.alert(error.message);
-      setLoading(false);
-    } else {
-      console.log('Sign in successful', data);
-      AsyncStorage.setItem('userUuid', (await supabase.auth.getUser()).data.user.id || '');
+      });
+      
+      if (error) {
+        Alert.alert('Sign-in Error', error.message);
+        setLoading(false);
+        return;
+      }
+      
+      const userId = signInData.user.id;
+      
+      // If we made it here, try again to check or update the user profile
+      try {
+        // Check again for user profile after successful sign-in
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profile')
+          .select('is_verified')
+          .eq('user_uuid', userId)
+          .single();
+        
+        // If table doesn't exist, we'll proceed anyway
+        if (profileError && profileError.code === '42P01') {
+          console.log('user_profile table does not exist, treating user as verified');
+          // Store user ID in AsyncStorage
+          await AsyncStorage.setItem('userUuid', userId || '');
+          // Proceed to home screen
+          navigation.replace('HomeScreen');
+          setLoading(false);
+          return;
+        }
+        
+        // If no profile found or error retrieving it, create one and require verification
+        if (profileError && profileError.code === 'PGRST116') {
+          try {
+            // Create a new profile with unverified status
+            await supabase
+              .from('user_profile')
+              .insert({
+                user_uuid: userId,
+                user_email: email,
+                created_at: new Date().toISOString(),
+                is_verified: false
+              });
+          } catch (insertError) {
+            console.error('Error creating user profile:', insertError);
+            // Continue even if insert fails
+          }
+          
+          // Store user ID
+          await AsyncStorage.setItem('userUuid', userId || '');
+          
+          // Send verification email and navigate
+          sendVerificationEmail(email, password);
+          setLoading(false);
+          return;
+        }
+        
+        // Check if existing profile is unverified
+        if (profileData && profileData.is_verified === false) {
+          await AsyncStorage.setItem('userUuid', userId || '');
+          
+          // Send verification email and navigate
+          sendVerificationEmail(email, password);
+          setLoading(false);
+          return;
+        }
+      } catch (profileCheckError) {
+        console.error('Error checking/updating profile after sign-in:', profileCheckError);
+        // If we can't reliably check or update the profile, just go to Home
+      }
+      
+      // If we get here, the user is verified - proceed to HomeScreen
+      await AsyncStorage.setItem('userUuid', userId || '');
       navigation.replace('HomeScreen');
+      
+    } catch (err) {
+      console.error('Sign in process error:', err);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   };

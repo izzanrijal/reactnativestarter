@@ -13,7 +13,7 @@ Welcome to the **Supabase React Native Starter Kit**, your ultimate toolkit for 
 ---
 
 ### 2. Features 🧩  
-Here’s what you get out of the box with this starter kit:  
+Here's what you get out of the box with this starter kit:  
 - **🔑 Authentication**: Fully integrated sign-up/sign-in using [Supabase](https://supabase.io/).  
 - **🛤️ Navigation**: Pre-configured and smooth navigation with [React Navigation](https://reactnavigation.org/).  
 - **📧 Email Verification**: Ensure users validate their emails with [Resend](https://resend.com).  
@@ -43,7 +43,7 @@ yarn install
   - `created_at` (TIMESTAMP)  
 
 4️⃣ **Configure Supabase**:  
-Add these variables to a `.env` file in your project’s root:  
+Add these variables to a `.env` file in your project's root:  
 ```bash
 EXPO_PUBLIC_SUPABASE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SUPABASE_SECRET_KEY
@@ -68,7 +68,7 @@ yarn start
 ---
 
 ### 4. Usage 📱  
-Here’s how to use the app:  
+Here's how to use the app:  
 
 1️⃣ **Sign up**:  
 - Click the `Sign Up` button.  
@@ -111,7 +111,22 @@ Big shoutout to these awesome tools that make this starter kit possible:
 ---
 
 ### 8. Contact 📬  
-Got questions or feedback? Let’s chat! 💬  
+Got questions or feedback? Let's chat! 💬  
 📧 **Email**: [Jason Beedle](mailto:jbeedle@gmail.com)  
+
+---
+
+## Email Verification Setup
+
+This application uses [Resend](https://resend.com) for sending verification emails. To set up email verification properly:
+
+1. Create an account at [Resend](https://resend.com)
+2. Generate an API key from your Resend dashboard
+3. Update the `.env` file with your Resend API key:
+   ```
+   EXPO_PUBLIC_RESEND_API_KEY=your_resend_api_key_here
+   ```
+
+Make sure to configure your sending domain in Resend as well for production use.
 
 --- 

@@ -29,28 +29,204 @@ const SignUpScreen = ({ navigation }) => {
     }
   }, [password, repeatPassword]);
 
+  // Safe navigation function that works in all navigation scenarios
+  const safeNavigateToVerification = (email, password, verificationCode) => {
+    try {
+      // First try to navigate directly to verification screen
+      navigation.navigate('VerificationScreen', {
+        email: email,
+        password: password,
+        verificationCode: verificationCode
+      });
+    } catch (navError) {
+      console.error('Navigation error:', navError);
+      
+      // Fall back to using global variables if direct navigation fails
+      // This approach is needed when navigating between different stacks
+      global.userEmail = email;
+      global.verificationCode = verificationCode;
+      
+      // Store the password temporarily for verification process
+      global.tempPassword = password;
+      
+      // Try navigating to SplashScreen first (which is always available)
+      // and then the app will redirect to VerificationScreen on mount
+      try {
+        navigation.navigate('SplashScreen');
+        
+        // Show a message to inform the user what's happening
+        setTimeout(() => {
+          Alert.alert(
+            'Verification Required',
+            'Please complete email verification to continue.',
+            [{ text: 'OK' }]
+          );
+        }, 500);
+      } catch (fallbackError) {
+        console.error('Fallback navigation error:', fallbackError);
+        
+        // Last resort: reload the app by signing out and in again
+        Alert.alert(
+          'Navigation Error',
+          'Please sign in again to complete verification.',
+          [{ 
+            text: 'OK', 
+            onPress: async () => {
+              await supabase.auth.signOut();
+              navigation.navigate('SignInScreen');
+            }
+          }]
+        );
+      }
+    }
+  };
+
+  // Function to send verification email and navigate to verification screen
+  const sendVerificationEmail = async (email, password) => {
+    try {
+      // Use callEmailVerifyFunction to send verification email
+      callEmailVerifyFunction(email, (randomCode) => {
+        console.log('Verification code sent to email:', randomCode);
+        
+        // Safe navigation to verification with the generated code
+        safeNavigateToVerification(email, password, randomCode.toString());
+      });
+    } catch (error) {
+      console.error('Error sending verification email:', error);
+      
+      // Fallback to generating code locally if email sending fails
+      const fallbackCode = Math.floor(1000 + Math.random() * 9000).toString();
+      console.log('Email sending failed. Using fallback code:', fallbackCode);
+      
+      Alert.alert(
+        'Email Sending Issue',
+        'We encountered an issue sending the verification email. Please use the code shown on the next screen.',
+        [{ text: 'OK' }]
+      );
+      
+      // Navigate with fallback code
+      safeNavigateToVerification(email, password, fallbackCode);
+    }
+  };
+
   const handleFormSubmit = async (data: FormData) => {
     if (data.password !== data.repeatPassword) {
       setIsPasswordMatch(false);
       return;
     }
+    
+    setLoading(true);
     setIsPasswordMatch(true);
+    
     try {
-      const { error } = await supabase.auth.signUp({
+      // Check for table existence first
+      try {
+        // First check if the email is already registered
+        const { data: existingUser, error: checkError } = await supabase
+          .from('user_profile')
+          .select('*')
+          .eq('user_email', data.email)
+          .single();
+        
+        // If table doesn't exist, we'll skip this check
+        if (checkError && checkError.code === '42P01') {
+          console.log('user_profile table does not exist, skipping existing user check');
+        }
+        // If we found an existing user
+        else if (existingUser) {
+          // Email already exists in user_profile
+          try {
+            const { data: verificationData } = await supabase
+              .from('user_profile')
+              .select('is_verified')
+              .eq('user_email', data.email)
+              .single();
+              
+            if (verificationData && verificationData.is_verified === true) {
+              // User is already verified
+              Alert.alert(
+                'Account Exists',
+                'This email is already registered and verified. Please sign in instead.',
+                [{ text: 'OK', onPress: () => navigation.navigate('SignInScreen') }]
+              );
+              setLoading(false);
+              return;
+            } else {
+              // User exists but is not verified - send to verification
+              Alert.alert(
+                'Account Exists',
+                'This email is registered but not verified. We\'ll send a new verification code.',
+                [{ text: 'OK' }]
+              );
+              
+              // Send verification email and navigate
+              sendVerificationEmail(data.email, data.password);
+              setLoading(false);
+              return;
+            }
+          } catch (profileError) {
+            console.error('Error checking verification status:', profileError);
+            // Continue with sign up
+          }
+        }
+      } catch (dbError) {
+        console.error('Database error during user check:', dbError);
+        // Continue with signup process
+      }
+      
+      // If we get here, user doesn't exist or we couldn't check - create a new account
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
       });
-      if (error) throw error;
-      await callEmailVerifyFunction(data.email, (verificationCode) => {
-        navigation.replace('VerificationScreen', {
-          email: data.email,
-          password: data.password,
-          verificationCode: verificationCode
-        });
-      });
+      
+      if (error) {
+        // Handle specific error for existing account
+        if (error.message.includes('already registered')) {
+          Alert.alert(
+            'Account Exists',
+            'This email is already registered. Please sign in or reset your password.',
+            [{ text: 'OK', onPress: () => navigation.navigate('SignInScreen') }]
+          );
+          setLoading(false);
+          return;
+        }
+        throw error;
+      }
+      
+      // User created successfully, now create a profile with unverified status
+      try {
+        // Get the user ID from the signup response
+        const userId = signUpData?.user?.id;
+        
+        if (userId) {
+          // Create user profile with unverified status
+          await supabase
+            .from('user_profile')
+            .insert({
+              user_uuid: userId,
+              user_email: data.email,
+              created_at: new Date().toISOString(),
+              is_verified: false
+            });
+          
+          console.log('Created user profile with unverified status');
+        } else {
+          console.error('No user ID available after signup');
+        }
+      } catch (profileError) {
+        console.error('Error creating user profile:', profileError);
+        // Continue to verification anyway
+      }
+      
+      // Send verification email and navigate
+      sendVerificationEmail(data.email, data.password);
+      
+      setLoading(false);
     } catch (error) {
-      Alert.alert('Error sending verification email', error.message);
-      return;
+      console.error('SignUp error:', error);
+      Alert.alert('Error during sign up', error.message || 'An unexpected error occurred');
+      setLoading(false);
     }
   };
 
