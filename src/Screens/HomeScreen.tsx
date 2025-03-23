@@ -1,7 +1,7 @@
 import Button from '@components/Buttons/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import supabase from '@config/supabase';
 import { callEmailVerifyFunction } from '@hooks/callEmailVerifyFunction';
 
@@ -21,7 +21,10 @@ const HomeScreen = ({navigation}) => {
                 if (sessionError || !sessionData.session) {
                     // No session, redirect to sign in
                     console.log('No active session, redirecting to sign in');
-                    navigation.replace('SignInScreen');
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'SignInScreen' }],
+                    });
                     return;
                 }
                 
@@ -41,7 +44,10 @@ const HomeScreen = ({navigation}) => {
                         if (profileError.code === 'PGRST116') {
                             // Profile doesn't exist, redirect to splash which will handle creating it
                             console.log('Profile not found, redirecting to splash');
-                            navigation.replace('SplashScreen');
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'SplashScreen' }],
+                            });
                             return;
                         }
                     } else if (profile && profile.is_verified === false) {
@@ -62,7 +68,13 @@ const HomeScreen = ({navigation}) => {
                                     'Verification Required',
                                     'You need to verify your email before accessing this screen. Please check your email for the verification code.',
                                     [
-                                        { text: 'OK', onPress: () => navigation.replace('VerificationScreen') }
+                                        { 
+                                            text: 'OK', 
+                                            onPress: () => navigation.reset({
+                                                index: 0,
+                                                routes: [{ name: 'VerificationScreen' }],
+                                            })
+                                        }
                                     ]
                                 );
                             });
@@ -78,7 +90,13 @@ const HomeScreen = ({navigation}) => {
                                 'Verification Required',
                                 `We couldn't send an email. Your verification code is: ${fallbackCode}`,
                                 [
-                                    { text: 'OK', onPress: () => navigation.replace('VerificationScreen') }
+                                    { 
+                                        text: 'OK', 
+                                        onPress: () => navigation.reset({
+                                            index: 0,
+                                            routes: [{ name: 'VerificationScreen' }],
+                                        })
+                                    }
                                 ]
                             );
                         }
@@ -101,6 +119,20 @@ const HomeScreen = ({navigation}) => {
         
         checkVerificationStatus();
     }, [navigation]);
+
+    // Safe navigation helper function to prevent errors
+    const handleButtonPress = (screenName) => {
+        console.log('Navigating to:', screenName);
+        try {
+            navigation.navigate(screenName);
+        } catch (error) {
+            console.error('Navigation error:', error);
+            Alert.alert(
+                'Navigation Error',
+                'Unable to navigate to the requested screen. Please try again.'
+            );
+        }
+    };
     
     const handleLogout = async () => {
         setLoading(true);
@@ -114,7 +146,10 @@ const HomeScreen = ({navigation}) => {
             if (global.tempPassword) delete global.tempPassword;
             
             await AsyncStorage.removeItem('userUuid');
-            navigation.replace('SignInScreen');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'SignInScreen' }],
+            });
         } catch (error) {
             Alert.alert('Error signing out', error.message);
         } finally {
@@ -134,25 +169,32 @@ const HomeScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Home Screen</Text>
-            <Button 
-                title="Button Examples"
-                variant="primary"
-                size="small"
-                onPress={() => navigation.navigate('ButtonExamples')}
-            />
-            <Button 
-                title="Change Password"
-                onPress={() => {navigation.navigate('ChangePasswordScreen')}}
-                variant="secondary"
-                size="small"
-            />
-            <Button 
-                title={loading ? "Logging out..." : "Logout"}
-                onPress={handleLogout}
-                variant="secondary"
-                size="small"
-                disabled={loading}
-            />
+            <View style={styles.buttonContainer}>
+                <Button 
+                    title="Button Examples"
+                    variant="primary"
+                    size="small"
+                    onPress={() => handleButtonPress('ButtonExamples')}
+                    containerStyle={styles.buttonStyle}
+                />
+                
+                <Button 
+                    title="Change Password"
+                    variant="secondary"
+                    size="small"
+                    onPress={() => handleButtonPress('ChangePasswordScreen')}
+                    containerStyle={styles.buttonStyle}
+                />
+                
+                <Button 
+                    title={loading ? "Logging out..." : "Logout"}
+                    variant="secondary"
+                    size="small"
+                    onPress={handleLogout}
+                    disabled={loading}
+                    containerStyle={styles.buttonStyle}
+                />
+            </View>
         </View>
     );
 };
@@ -171,7 +213,16 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginBottom: 20,
     },
+    buttonContainer: {
+        width: '80%',
+        alignItems: 'center',
+    },
+    buttonStyle: {
+        width: '100%',
+        marginVertical: 8,
+    }
 });
 
 export default HomeScreen;

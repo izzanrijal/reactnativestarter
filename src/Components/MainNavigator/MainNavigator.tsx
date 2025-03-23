@@ -114,7 +114,7 @@ const MainNavigator = () => {
       if (!session) {
         setIsVerified(false);
         setVerificationCheckComplete(true);
-        setInitialRoute("SplashScreen");
+        setInitialRoute("SignInScreen");
         return;
       }
 
@@ -193,7 +193,7 @@ const MainNavigator = () => {
       checkVerificationStatus();
     } else {
       setVerificationCheckComplete(true);
-      setInitialRoute("SplashScreen");
+      setInitialRoute("SignInScreen");
     }
   }, [session]);
 
@@ -220,6 +220,11 @@ const MainNavigator = () => {
           screenOptions={{ headerShown: false, gestureEnabled: false }}
         >
           <Stack.Screen name="SplashScreen" component={SplashScreen} />
+          {/* Add essential screens for navigation even during loading state */}
+          <Stack.Screen name="SignInScreen" component={SignInScreen} />
+          <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+          <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -270,6 +275,8 @@ const MainNavigator = () => {
               <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
               {/* Include HomeScreen but with access control in component */}
               <Stack.Screen name="HomeScreen" component={HomeScreen} />
+              <Stack.Screen name="ButtonExamples" component={ButtonExamples} />
+              <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
             </>
           )
         ) : (
@@ -284,6 +291,8 @@ const MainNavigator = () => {
             />
             {/* Include HomeScreen but with access control in component */}
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <Stack.Screen name="ButtonExamples" component={ButtonExamples} />
+            <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
           </>
         )}
       </Stack.Navigator>

@@ -52,11 +52,13 @@ export interface ForgotPasswordForm {
     repeatPassword: string;
 }
 
-export type SplashScreenProps = {
+export interface SplashScreenProps {
   navigation: {
     replace: (screen: string) => void;
+    reset: (config: { index: number; routes: { name: string }[] }) => void;
+    navigate: (screen: string, params?: any) => void;
   };
-};
+}
 
 
 export interface UserProfile {

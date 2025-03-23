@@ -18,8 +18,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
                 global.userEmail = email;
                 global.verificationCode = verificationCode.toString();
                 
-                // Navigate to verification screen
-                navigation.replace('VerificationScreen');
+                // Navigate to verification screen using reset instead of replace
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'VerificationScreen' }],
+                });
                 
                 // Show alert to check email
                 setTimeout(() => {
@@ -40,8 +43,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
             global.userEmail = email;
             global.verificationCode = fallbackCode;
             
-            // Navigate to verification screen
-            navigation.replace('VerificationScreen');
+            // Navigate to verification screen using reset instead of replace
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'VerificationScreen' }],
+            });
             
             // Show fallback code to user
             setTimeout(() => {
@@ -60,7 +66,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
             // First, check if we have global verification variables set
             if (global.userEmail && global.verificationCode) {
                 console.log('Redirecting to verification from SplashScreen');
-                navigation.replace('VerificationScreen');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'VerificationScreen' }],
+                });
                 return;
             }
 
@@ -90,7 +99,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
                         
                         if (profileError.code === '42P01') {
                             // Table doesn't exist, proceed to home as it's likely first run
-                            navigation.replace('HomeScreen');
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'HomeScreen' }],
+                            });
                             return;
                         }
                         
@@ -113,20 +125,29 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
                             } catch (createError) {
                                 console.error('Error creating profile:', createError);
                                 // Fall back to HomeScreen
-                                navigation.replace('HomeScreen');
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'HomeScreen' }],
+                                });
                                 return;
                             }
                         }
                         
                         // Other errors, proceed to home as fallback
-                        navigation.replace('HomeScreen');
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'HomeScreen' }],
+                        });
                         return;
                     }
 
                     // Check verification status
                     if (profileData && profileData.is_verified === true) {
                         // User is verified, proceed to home
-                        navigation.replace('HomeScreen');
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'HomeScreen' }],
+                        });
                     } else {
                         // User is logged in but not verified
                         // Send verification email and navigate
@@ -135,22 +156,36 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
                 } catch (err) {
                     console.error('Error in verification check:', err);
                     // Fallback to home screen
-                    navigation.replace('HomeScreen');
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'HomeScreen' }],
+                    });
                 }
             } else {
-                // No session, go to auth stack
-                navigation.replace('AuthenticationScreens');
+                // No session, go to auth stack - use reset instead of replace
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'SignInScreen' }],
+                });
             }
         } catch (error) {
             console.error('Session check error:', error);
-            // On error, go to auth stack
-            navigation.replace('AuthenticationScreens');
+            // On error, go to auth stack - use reset instead of replace
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'SignInScreen' }],
+            });
         }
     };
       
 
     useEffect(() => {
-        checkUser();
+        // Add a small delay to ensure navigation is ready
+        const timer = setTimeout(() => {
+            checkUser();
+        }, 300);
+        
+        return () => clearTimeout(timer);
     }, []);
 
     return (
