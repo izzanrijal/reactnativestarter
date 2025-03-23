@@ -22,13 +22,27 @@ const VerificationScreen = ({ route, navigation }) => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        navigation.replace('SignUpScreen');
+        handleGoBack();
         return true; // Prevent default back action
       }
     );
     
     return () => backHandler.remove(); // Clean up the event listener
   }, [route, navigation]);
+  
+  // Handle navigation back safely
+  const handleGoBack = () => {
+    // First check if session exists
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // If authenticated, go to Home
+        navigation.replace('HomeScreen');
+      } else {
+        // If not authenticated, go to Sign Up
+        navigation.replace('SignUpScreen');
+      }
+    });
+  };
   
   // Only proceed if route.params exists
   if (!route.params) {
@@ -241,7 +255,7 @@ const VerificationScreen = ({ route, navigation }) => {
         
         <Text 
           style={styles.backLink}
-          onPress={() => navigation.replace('SignUpScreen')}
+          onPress={handleGoBack}
         >
           Back to Sign Up
         </Text>
