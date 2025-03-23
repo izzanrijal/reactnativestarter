@@ -13,6 +13,7 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
+    scheme: "reactnativestarter",
     ios: {
       supportsTablet: true
     },

@@ -1,8 +1,16 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 
 type RootStackParamList = {
   SignInScreen: undefined;
   SignUpScreen: undefined;
+  ResetPasswordScreen: {
+    email?: string;
+    verificationCode?: string;
+    mode?: 'reset';
+    access_token?: string;
+    type?: string;
+  };
 };
 
 export interface FormField {
@@ -74,3 +82,5 @@ export type SignInScreenProps = {
 export type SignUpScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
 };
+
+export type ResetPasswordScreenRouteProp = RouteProp<RootStackParamList, 'ResetPasswordScreen'>;

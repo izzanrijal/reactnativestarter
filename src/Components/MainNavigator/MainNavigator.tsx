@@ -8,6 +8,7 @@ import HomeScreen from "@screens/HomeScreen";
 import VerificationScreen from "@screens/VerificationScreen";
 import ChangePasswordScreen from "@screens/ChangePasswordScreen";
 import ButtonExamples from "@screens/ButtonExamples";
+import ResetPasswordScreen from "@screens/ResetPasswordScreen";
 import supabase from "@config/supabase";
 import { Session } from "@supabase/supabase-js";
 import { Alert } from "react-native";
@@ -225,6 +226,7 @@ const MainNavigator = () => {
           <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
           <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -255,6 +257,7 @@ const MainNavigator = () => {
                 component={VerificationScreen} 
                 options={{ gestureEnabled: false }}
               />
+              <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
               {/* Authentication screens in case user needs to re-authenticate */}
               <Stack.Screen name="SignInScreen" component={SignInScreen} />
               <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
@@ -273,6 +276,7 @@ const MainNavigator = () => {
               />
               <Stack.Screen name="SignInScreen" component={SignInScreen} />
               <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+              <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
               {/* Include HomeScreen but with access control in component */}
               <Stack.Screen name="HomeScreen" component={HomeScreen} />
               <Stack.Screen name="ButtonExamples" component={ButtonExamples} />
@@ -284,6 +288,7 @@ const MainNavigator = () => {
           <>
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+            <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
             <Stack.Screen 
               name="VerificationScreen" 
               component={VerificationScreen} 

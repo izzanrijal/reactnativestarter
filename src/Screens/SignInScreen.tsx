@@ -1,11 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, SafeAreaView, Alert } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, Alert, TouchableOpacity, View, TextInput } from 'react-native';
 import { set, useForm } from 'react-hook-form';
 import CustomForm from '../Components/Forms/FormInput';
 import { FormData, FormField } from '../Types/types';
 import supabase from '@config/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { callEmailVerifyFunction } from '@hooks/callEmailVerifyFunction';
+import { isValidEmail } from '../utils/emailUtils';
+
+// Track password reset attempts for rate limiting
+const resetAttempts = new Map<string, {count: number, lastAttempt: number}>();
 
 const SignInScreen = ({ navigation }) => {
   const { control, handleSubmit, watch } = useForm<FormData>({
@@ -17,6 +21,10 @@ const SignInScreen = ({ navigation }) => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [showForgotPasswordForm, setShowForgotPasswordForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmailError, setResetEmailError] = useState('');
+  const [resetInProgress, setResetInProgress] = useState(false);
 
   const sendVerificationEmail = async (email, password) => {
     try {
@@ -189,6 +197,83 @@ const SignInScreen = ({ navigation }) => {
     }
   };
 
+  const forgotPassword = async () => {
+    // Validate the email
+    if (!resetEmail || !isValidEmail(resetEmail)) {
+      setResetEmailError('Please enter a valid email address');
+      return;
+    }
+
+    setResetInProgress(true);
+    
+    try {
+      // Try a sign-in with a dummy password to check if the email exists
+      // This will always fail but we can check the error type
+      const { error } = await supabase.auth.signInWithPassword({
+        email: resetEmail,
+        password: 'dummy_password_for_check_only',
+      });
+      
+      // If we get an error saying the user doesn't exist
+      if (error && error.message.includes("Email not confirmed") || 
+          error && error.message.includes("Invalid login credentials")) {
+        // Email exists, we can proceed
+        console.log('Email exists, proceeding with password reset');
+      } else if (error && error.message.includes("user not found")) {
+        // Email doesn't exist in the system
+        setResetEmailError('No account found with this email address');
+        setResetInProgress(false);
+        return;
+      }
+      
+      // Implement rate limiting
+      const now = Date.now();
+      const userAttempts = resetAttempts.get(resetEmail) || { count: 0, lastAttempt: 0 };
+      
+      // Check if user is exceeding rate limit (max 3 attempts in 30 minutes)
+      if (userAttempts.count >= 3 && (now - userAttempts.lastAttempt) < 30 * 60 * 1000) {
+        const minutesRemaining = Math.ceil((30 * 60 * 1000 - (now - userAttempts.lastAttempt)) / (60 * 1000));
+        setResetEmailError(`Too many reset attempts. Please try again in ${minutesRemaining} minutes.`);
+        setResetInProgress(false);
+        return;
+      }
+      
+      // Reset counter if it's been more than 30 minutes
+      if ((now - userAttempts.lastAttempt) > 30 * 60 * 1000) {
+        userAttempts.count = 0;
+      }
+      
+      // Send verification code via email using the same function used for account verification
+      callEmailVerifyFunction(resetEmail, (verificationCode) => {
+        console.log('Password reset code sent to email:', verificationCode);
+        
+        // Navigate to reset password screen with the verification code
+        navigation.navigate('ResetPasswordScreen', {
+          email: resetEmail,
+          verificationCode: verificationCode.toString(),
+          mode: 'reset'
+        });
+        
+        // Update rate limiting counter
+        resetAttempts.set(resetEmail, { 
+          count: userAttempts.count + 1, 
+          lastAttempt: now 
+        });
+        
+        // Reset the form
+        setShowForgotPasswordForm(false);
+        setResetEmail('');
+        setResetEmailError('');
+      });
+      
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setResetEmailError('An unexpected error occurred. Please try again.');
+    } finally {
+      setResetInProgress(false);
+    }
+  };
+
   const formFields: FormField[] = [
     {
       name: 'email',
@@ -221,22 +306,82 @@ const SignInScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Sign In</Text>
-      <CustomForm
-        fields={formFields}
-        control={control}
-        onSubmit={handleSubmit(sendDataToSupabase)}
-        submitButtonText={loading ? "Signing in..." : "Sign In"}
-        disabled={loading}
-      />
-      <Text style={styles.smallText}>
-        Don't have an account?{' '}
-        <Text 
-          onPress={() => navigation.navigate('SignUpScreen')} 
-          style={styles.smallTextBlue}
-        >
-          Sign Up
-        </Text>
-      </Text>
+      
+      {showForgotPasswordForm ? (
+        <View style={styles.forgotPasswordContainer}>
+          <Text style={styles.forgotPasswordTitle}>Forgot Password</Text>
+          <Text style={styles.forgotPasswordDescription}>
+            Enter your email address and we'll send you instructions to reset your password.
+          </Text>
+          
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.input, resetEmailError ? styles.inputError : null]}
+              value={resetEmail}
+              onChangeText={(text) => {
+                setResetEmail(text);
+                if (resetEmailError) setResetEmailError('');
+              }}
+              placeholder="Enter your email address"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            {resetEmailError ? <Text style={styles.errorText}>{resetEmailError}</Text> : null}
+          </View>
+          
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.cancelButton]} 
+              onPress={() => {
+                setShowForgotPasswordForm(false);
+                setResetEmail('');
+                setResetEmailError('');
+              }}
+              disabled={resetInProgress}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.button, styles.resetButton, resetInProgress && styles.disabledButton]} 
+              onPress={forgotPassword}
+              disabled={resetInProgress}
+            >
+              <Text style={styles.buttonText}>
+                {resetInProgress ? "Sending..." : "Reset Password"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <>
+          <CustomForm
+            fields={formFields}
+            control={control}
+            onSubmit={handleSubmit(sendDataToSupabase)}
+            submitButtonText={loading ? "Signing in..." : "Sign In"}
+            disabled={loading}
+          />
+          
+          <TouchableOpacity 
+            onPress={() => setShowForgotPasswordForm(true)}
+            style={styles.forgotPasswordLink}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.smallText}>
+            Don't have an account?{' '}
+            <Text 
+              onPress={() => navigation.navigate('SignUpScreen')} 
+              style={styles.smallTextBlue}
+            >
+              Sign Up
+            </Text>
+          </Text>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -265,8 +410,81 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 14,
+    marginTop: 4,
+    textAlign: 'left',
+  },
+  forgotPasswordLink: {
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  forgotPasswordText: {
+    color: 'blue',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+  forgotPasswordContainer: {
     marginTop: 8,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+  },
+  forgotPasswordTitle: {
+    fontSize: 18,
+    fontWeight: '500',
+    marginBottom: 8,
     textAlign: 'center',
+  },
+  forgotPasswordDescription: {
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#666',
+  },
+  fieldContainer: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  inputError: {
+    borderColor: 'red',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  button: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  cancelButton: {
+    backgroundColor: '#ccc',
+  },
+  resetButton: {
+    backgroundColor: '#007AFF',
+  },
+  disabledButton: {
+    backgroundColor: '#99CCFF',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
