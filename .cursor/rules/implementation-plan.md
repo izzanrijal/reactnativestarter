@@ -30,14 +30,19 @@
     4. Add the keys to your `.env` file
     5. Install Supabase client with `npm install @supabase/supabase-js`
 
-- [ ] Step 3: Set up React Native core modules and components
+- [x] Step 3: Set up React Native core modules and components
   - **Task**: Configure and use built-in React Native components and styling system
   - **Files**:
     - `src/Config/theme.ts`: Theme constants for consistent styling
-    - `App.tsx` or `src/providers.tsx`: Provider wrapper for app-wide configurations
+    - `src/providers.tsx`: Provider wrapper for app-wide configurations
     - `src/Components/UI/`: Directory for reusable custom UI components
+      - `Button.tsx`: Reusable button component
+      - `Text.tsx`: Typography component
   - **Step Dependencies**: Step 1
-  - **User Instructions**: Use React Native's core components and styling system instead of external UI libraries
+  - **User Instructions**: 
+    1. Install dependencies: `npm install react-native-safe-area-context expo-status-bar`
+    2. Update App.tsx to use Providers
+    3. Test components in a sample screen
 
 - [ ] Step 4: Set up database schema in Supabase
   - **Task**: Create database tables and relationships in Supabase as defined in the schema
