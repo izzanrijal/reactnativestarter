@@ -6,25 +6,25 @@
  * - Global providers setup
  * - Safe area handling
  * - Status bar configuration
+ * - Authentication flow
  * 
  * @dependencies
  * - Providers: Global provider wrapper
- * - MainNavigator: Main navigation component
- * 
- * @notes
- * - Currently bypassing auth for development
+ * - AppNavigator: Root navigation with auth flow
  */
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Providers } from './src/providers';
-import { MainNavigator } from './src/Navigation/MainNavigator';
+import { AppNavigator } from './src/Navigation/AppNavigator';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
   return (
     <Providers>
+      <StatusBar style="dark" />
       <NavigationContainer>
-        <MainNavigator />
+        <AppNavigator />
       </NavigationContainer>
     </Providers>
   );
