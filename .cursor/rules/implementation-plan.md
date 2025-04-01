@@ -140,7 +140,7 @@
   - **Step Dependencies**: Step 11, Step 12
   - **User Instructions**: Configure email templates in Supabase Auth settings for password reset
 
-- [ ] Step 14: Create onboarding flow components/screens
+- [x] Step 14: Create onboarding flow components/screens
   - **Task**: Implement the onboarding screens with intro carousel
   - **Files**:
     - `src/Components/Onboarding/OnboardingCarousel.tsx`: Onboarding carousel component (e.g., using `react-native-swiper` or similar)
@@ -148,22 +148,28 @@
     - `src/Screens/Onboarding/OnboardingScreen.tsx`: Onboarding screen holding the carousel (example path)
   - **Step Dependencies**: Step 3, Step 8 (if text is localized)
   - **User Instructions**: Install a carousel/swiper library if needed.
+  - **Done**: Created OnboardingCarousel and OnboardingSlide components with smooth transitions and pagination.
+    Implemented OnboardingScreen with app introduction slides and AsyncStorage persistence.
 
-- [ ] Step 15: Implement auth logic for protected routes/screens
+- [x] Step 15: Implement auth logic for protected routes/screens
   - **Task**: Implement logic within navigation to handle route protection and redirection based on auth state
   - **Files**:
     - `src/Navigation/AppNavigator.tsx` or `src/Navigation/index.tsx`: Conditional rendering of Auth vs Main stacks based on `AuthContext`
     - `src/Contexts/AuthContext.tsx`: Expose authentication status
   - **Step Dependencies**: Step 7, Step 11
   - **User Instructions**: Structure navigators to separate authenticated and unauthenticated flows.
+  - **Done**: Enhanced AppNavigator with auth state management and protected routes.
+    Created useAuth hook for centralized auth state management and session persistence.
 
-- [ ] Step 16: Implement post-signup profile completion
+- [x] Step 16: Implement post-signup profile completion
   - **Task**: Create components and screen for basic profile completion after signup
   - **Files**:
     - `src/Components/Profile/ProfileCompletionForm.tsx`: Profile completion form component
     - `src/Screens/Profile/CompleteProfileScreen.tsx`: Profile completion screen (example path)
   - **Step Dependencies**: Step 11, Step 7 (Navigation)
   - **User Instructions**: None
+  - **Done**: Created ProfileCompletionForm with photo upload and validation.
+    Implemented CompleteProfileScreen with form integration and navigation flow.
 
 ## EPIC - Dashboard (DASH)
 
