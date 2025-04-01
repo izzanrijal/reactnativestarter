@@ -93,7 +93,7 @@ export const MainNavigator = () => {
         options={{
           title: 'Ahli',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="user-md" size={size} color={color} />
+            <FontAwesome5 name="stethoscope" size={size} color={color} />
           ),
         }}
       />

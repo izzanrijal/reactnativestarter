@@ -9,22 +9,23 @@
  * 
  * @dependencies
  * - Providers: Global provider wrapper
+ * - MainNavigator: Main navigation component
  * 
  * @notes
- * - Add additional global setup here as needed
+ * - Currently bypassing auth for development
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { Providers } from './src/providers';
-import { theme } from './src/Config/theme';
+import { MainNavigator } from './src/Navigation/MainNavigator';
 
 export default function App() {
   return (
     <Providers>
-      <View style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
-        {/* App content will go here */}
-      </View>
+      <NavigationContainer>
+        <MainNavigator />
+      </NavigationContainer>
     </Providers>
   );
 }

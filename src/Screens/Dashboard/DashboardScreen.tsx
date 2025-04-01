@@ -1,78 +1,41 @@
 /**
  * @description 
  * Main dashboard screen showing overview of children, consultations, and blog content.
+ * Currently a placeholder version for development.
  * 
  * @dependencies
  * - react-native: Core components
- * - @react-navigation/native: Navigation
  * 
  * @notes
- * - Shows child avatars
- * - Displays recent consultations
- * - Shows featured blog content
+ * - Temporary placeholder implementation
  */
 
 import React from 'react';
 import { 
   View, 
-  ScrollView, 
-  StyleSheet, 
-  RefreshControl,
-  useWindowDimensions,
+  Text,
+  StyleSheet,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChildAvatars } from '../../Components/Dashboard/ChildAvatars';
-import { ConsultationWidget } from '../../Components/Dashboard/ConsultationWidget';
-import { BlogContent } from '../../Components/Dashboard/BlogContent';
-import { NewConsultationButton } from '../../Components/Dashboard/NewConsultationButton';
-import { useDashboard } from '../../Hooks/useDashboard';
 import { theme } from '../../Config/theme';
 
 export const DashboardScreen = () => {
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const { 
-    isLoading,
-    children,
-    consultations,
-    blogPosts,
-    refreshDashboard,
-  } = useDashboard();
-
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.contentContainer,
-        { paddingBottom: insets.bottom + 20 }
-      ]}
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={refreshDashboard}
-          colors={[theme.colors.primary.main]}
-          tintColor={theme.colors.primary.main}
-        />
-      }
-    >
-      {/* Child Avatars Section */}
-      <View style={[styles.section, { width }]}>
-        <ChildAvatars children={children} />
+    <View style={styles.container}>
+      <Text style={styles.title}>Dashboard</Text>
+      <Text style={styles.subtitle}>Welcome to AhliAnak</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Your Children</Text>
+        <Text style={styles.placeholder}>No children added yet</Text>
       </View>
-
-      {/* Recent Consultations Section */}
-      <View style={[styles.section, { width }]}>
-        <ConsultationWidget consultations={consultations} />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Recent Consultations</Text>
+        <Text style={styles.placeholder}>No recent consultations</Text>
       </View>
-
-      {/* Blog Content Section */}
-      <View style={[styles.section, { width }]}>
-        <BlogContent posts={blogPosts} />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Featured Articles</Text>
+        <Text style={styles.placeholder}>Loading articles...</Text>
       </View>
-
-      {/* New Consultation Button */}
-      <NewConsultationButton />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -80,13 +43,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.primary,
+    padding: 16,
   },
-  contentContainer: {
-    flexGrow: 1,
-    alignItems: 'center',
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    marginBottom: 24,
   },
   section: {
-    marginBottom: 20,
-    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    marginBottom: 12,
+  },
+  placeholder: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    fontStyle: 'italic',
   },
 }); 
