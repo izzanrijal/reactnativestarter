@@ -1,0 +1,46 @@
+{
+  "common": {
+    "loading": "Memuat...",
+    "error": "Kesalahan",
+    "success": "Berhasil",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "done": "Selesai",
+    "search": "Cari",
+    "noData": "Data tidak tersedia"
+  },
+  "auth": {
+    "signIn": "Masuk",
+    "signUp": "Daftar",
+    "signOut": "Keluar",
+    "forgotPassword": "Lupa Kata Sandi",
+    "resetPassword": "Atur Ulang Kata Sandi",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "name": "Nama",
+    "phone": "Telepon",
+    "address": "Alamat"
+  },
+  "navigation": {
+    "dashboard": "Beranda",
+    "children": "Anak",
+    "doctors": "Dokter",
+    "history": "Riwayat",
+    "profile": "Profil"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "language": "Bahasa",
+    "theme": "Tema",
+    "notification": "Notifikasi",
+    "about": "Tentang",
+    "help": "Bantuan",
+    "privacy": "Kebijakan Privasi",
+    "terms": "Syarat & Ketentuan"
+  }
+} 

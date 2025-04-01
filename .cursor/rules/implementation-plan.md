@@ -65,7 +65,7 @@
   - **Step Dependencies**: Step 4
   - **User Instructions**: Apply SQL migrations via Supabase Studio SQL Editor or CLI.
 
-- [ ] Step 7: Create base layout components and navigation
+- [x] Step 7: Create base layout components and navigation
   - **Task**: Create layout components and set up main navigation structure (e.g., Stack, Tabs using React Navigation)
   - **Files**:
     - `src/Navigation/AppNavigator.tsx`: Main app navigator (example)
@@ -78,7 +78,7 @@
 
 ## EPIC - Internationalization (INT)
 
-- [ ] Step 8: Configure internationalization (e.g., with i18next)
+- [x] Step 8: Configure internationalization (e.g., with i18next)
   - **Task**: Set up internationalization support (e.g., using `i18next` and `react-i18next`) for Bahasa Indonesia and English
   - **Files**:
     - `src/i18n/config.ts`: i18n configuration
@@ -88,7 +88,7 @@
   - **Step Dependencies**: Step 1
   - **User Instructions**: Run `npm install i18next react-i18next expo-localization`
 
-- [ ] Step 9: Implement language switcher component
+- [x] Step 9: Implement language switcher component
   - **Task**: Create a language switcher component for the profile settings
   - **Files**:
     - `src/Components/Settings/LanguageSwitcher.tsx`: Language switcher component
@@ -96,7 +96,7 @@
   - **Step Dependencies**: Step 8
   - **User Instructions**: None
 
-- [ ] Step 10: Create fallback mechanisms for missing translations
+- [x] Step 10: Create fallback mechanisms for missing translations
   - **Task**: Implement fallback mechanisms for missing translation keys within i18n config
   - **Files**:
     - `src/i18n/config.ts`: Update config with fallback language
