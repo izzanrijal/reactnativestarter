@@ -44,30 +44,26 @@
     2. Update App.tsx to use Providers
     3. Test components in a sample screen
 
-- [ ] Step 4: Set up database schema in Supabase
+- [x] Step 4: Set up database schema in Supabase
   - **Task**: Create database tables and relationships in Supabase as defined in the schema
   - **Files**:
-    - `supabase/migrations/YYYYMMDDHHMMSS_create_schema.sql` or similar: SQL schema (using Supabase migrations)
+    - `supabase/migrations/20240401_create_schema.sql`: Database schema with tables, relationships, and indexes
   - **Step Dependencies**: Step 2
-  - **User Instructions**:
-    1. Use Supabase CLI migrations (`supabase migration new <migration_name>`, edit SQL file, `supabase db push`) or apply SQL via Supabase Studio SQL Editor.
+  - **User Instructions**: Apply SQL migrations via Supabase Studio SQL Editor or CLI.
 
-- [ ] Step 5: Configure Row Level Security (RLS) policies
+- [x] Step 5: Configure Row Level Security (RLS) policies
   - **Task**: Implement Row Level Security policies for database tables
   - **Files**:
-    - `supabase/migrations/YYYYMMDDHHMMSS_add_rls.sql` or similar: SQL for RLS policies (using Supabase migrations)
+    - `supabase/migrations/20240401_add_rls.sql`: SQL for RLS policies
   - **Step Dependencies**: Step 4
-  - **User Instructions**:
-    1. Use Supabase CLI migrations or apply SQL via Supabase Studio SQL Editor.
+  - **User Instructions**: Apply SQL migrations via Supabase Studio SQL Editor or CLI.
 
-- [ ] Step 6: Set up storage buckets and policies
+- [x] Step 6: Set up storage buckets and policies
   - **Task**: Create Supabase storage buckets for voice notes, profile pictures, and receipts with appropriate access policies
   - **Files**:
-    - `supabase/migrations/YYYYMMDDHHMMSS_setup_storage.sql` or similar: SQL for storage buckets and policies (using Supabase migrations)
+    - `supabase/migrations/20240401_setup_storage.sql`: SQL for storage buckets and policies
   - **Step Dependencies**: Step 4
-  - **User Instructions**:
-    1. Use Supabase CLI migrations or apply SQL via Supabase Studio SQL Editor.
-    2. Verify buckets are created in the Storage section of Supabase dashboard
+  - **User Instructions**: Apply SQL migrations via Supabase Studio SQL Editor or CLI.
 
 - [ ] Step 7: Create base layout components and navigation
   - **Task**: Create layout components and set up main navigation structure (e.g., Stack, Tabs using React Navigation)
