@@ -173,15 +173,17 @@
 
 ## EPIC - Dashboard (DASH)
 
-- [ ] Step 17: Implement bottom navigation bar
+- [x] Step 17: Implement bottom navigation bar
   - **Task**: Create the bottom tab navigator with 5 tabs as per the design using React Navigation
   - **Files**:
     - `src/Navigation/BottomTabNavigator.tsx`: Bottom navigation bar implementation (example path)
     - `src/Components/Navigation/TabBarIcon.tsx`: Custom icon component for tabs (example)
   - **Step Dependencies**: Step 7
   - **User Instructions**: Configure screens and icons within the Bottom Tab Navigator.
+  - **Done**: Created MainNavigator with 5 tabs (Beranda, Anak, Ahli, Riwayat, Profil).
+    Implemented custom styling and icons for each tab.
 
-- [ ] Step 18: Create dashboard context and API/Service
+- [x] Step 18: Create dashboard context and API/Service
   - **Task**: Create context and service functions for fetching dashboard data from Supabase
   - **Files**:
     - `src/Contexts/DashboardContext.tsx`: Dashboard context provider (example path, optional)
@@ -190,24 +192,30 @@
     - `src/Types/dashboard.ts`: Dashboard types
   - **Step Dependencies**: Step 2, Step 11
   - **User Instructions**: Define functions to query necessary Supabase tables (e.g., children, recent consultations).
+  - **Done**: Created useDashboard hook with comprehensive data fetching.
+    Implemented types for Child, Consultation, and BlogPost entities.
 
-- [ ] Step 19: Implement child avatars component
+- [x] Step 19: Implement child avatars component
   - **Task**: Create component for displaying child avatars on the dashboard
   - **Files**:
     - `src/Components/Dashboard/ChildAvatars.tsx`: Child avatars component
     - `src/Hooks/useChildProfiles.ts` or fetch logic within component: Hook/logic for accessing child profiles data
   - **Step Dependencies**: Step 18, Step 23 (Child Data)
   - **User Instructions**: Fetch user's children profiles and display avatars.
+  - **Done**: Created ChildAvatars component with horizontal scroll and empty state.
+    Implemented navigation to child details and add child screens.
 
-- [ ] Step 20: Implement consultation widget
+- [x] Step 20: Implement consultation widget
   - **Task**: Create component for displaying recent consultations on the dashboard
   - **Files**:
     - `src/Components/Dashboard/ConsultationWidget.tsx`: Recent consultations widget
     - `src/Components/Dashboard/ConsultationCard.tsx`: Consultation card component
   - **Step Dependencies**: Step 18, Step 33 (Consultation Data)
   - **User Instructions**: Fetch recent consultations and display them.
+  - **Done**: Created ConsultationWidget with status indicators and doctor info.
+    Implemented relative time formatting and empty state handling.
 
-- [ ] Step 21: Implement blog content widget
+- [x] Step 21: Implement blog content widget
   - **Task**: Create component for displaying blog content on the dashboard
   - **Files**:
     - `src/Components/Dashboard/BlogContent.tsx`: Blog content widget
@@ -215,14 +223,18 @@
     - `src/Services/blog.ts`: Blog service functions (fetching data from Supabase/CMS)
   - **Step Dependencies**: Step 18
   - **User Instructions**: Fetch blog posts/articles from data source.
+  - **Done**: Created BlogPostWidget with thumbnail images and metadata.
+    Implemented blog post navigation and empty state handling.
 
-- [ ] Step 22: Create new consultation button
+- [x] Step 22: Create new consultation button
   - **Task**: Implement the button on the dashboard screen to initiate the new consultation flow
   - **Files**:
     - `src/Components/Dashboard/NewConsultationButton.tsx`: New consultation button component
     - `src/Screens/Dashboard/DashboardScreen.tsx`: Main dashboard screen (example path)
   - **Step Dependencies**: Step 20, Step 7 (Navigation)
   - **User Instructions**: Button should navigate to the start of the consultation flow (e.g., child selection or question input).
+  - **Done**: Created DashboardScreen with pull-to-refresh and widget integration.
+    Implemented responsive layout and loading states.
 
 ## EPIC - Entering Children (ENTR)
 
