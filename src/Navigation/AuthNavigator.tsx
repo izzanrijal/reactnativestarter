@@ -29,4 +29,4 @@ export const AuthNavigator = () => {
       <Stack.Screen name="SignUp" component={SignUpScreen} />
     </Stack.Navigator>
   );
-}; 
+};
